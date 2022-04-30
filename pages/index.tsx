@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import type { UseSupaBase } from "utils";
-import { Auth } from "components";
+import { Auth, Chat } from "components";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage<UseSupaBase> = ({ session, supabase }) => {
@@ -18,7 +18,7 @@ const Home: NextPage<UseSupaBase> = ({ session, supabase }) => {
       </Head>
 
       <main className={styles.main}>
-        {loggedIn ? <span>Logged in</span> : <Auth supabase={supabase} />}
+        {loggedIn ? <Chat supabase={supabase} /> : <Auth supabase={supabase} />}
       </main>
     </div>
   );
