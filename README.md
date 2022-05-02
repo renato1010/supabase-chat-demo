@@ -1,6 +1,6 @@
 ## Supabase Chat demo
 
-Demo to show the [Supabase](https://supabase.com/) feature, specifically the authorization via Github OAuth and the real-time database.
+Demo to show the [Supabase](https://supabase.com/) features, specifically the authorization via Github OAuth and the real-time database.
 
 This demo is based on egghead.io course https://egghead.io/courses/build-a-real-time-data-syncing-chat-application-with-supabase-and-next-js-84e58958  
 The twist we did was, we made the demo completely written with Typescript instead of Javascript(original).
