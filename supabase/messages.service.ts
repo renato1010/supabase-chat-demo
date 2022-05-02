@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
-import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import {
+  PostgrestError,
+  RealtimeSubscription,
+  SupabaseClient,
+  SupabaseRealtimePayload,
+} from "@supabase/supabase-js";
+import type { PublicMessage } from "types";
 
 const getAllMessages = async (
   supabase: SupabaseClient
 ): Promise<{
-  messages: Record<string, string | number>[] | null;
+  messages: PublicMessage[] | null;
   error: PostgrestError | null;
 }> => {
   let { data: messages, error } = await supabase
-    .from<Record<string, string | number>>("message")
+    .from<PublicMessage>("message")
     .select("*");
   return { messages, error };
 };
@@ -19,9 +25,7 @@ export const useGetAllMessages = (
   supabase: SupabaseClient,
   immediate = true
 ) => {
-  const [chatMessages, setChatMessages] = useState<
-    Record<string, string | number>[] | null
-  >([]);
+  const [chatMessages, setChatMessages] = useState<PublicMessage[] | null>([]);
   const [messagesError, setMessagesError] = useState<
     PostgrestError | string | null
   >(null);
@@ -55,4 +59,49 @@ export const useGetAllMessages = (
     }
   }, [execute, immediate]);
   return { execute, status, chatMessages, messagesError };
+};
+
+export const getMessagesInsertSubscription = async (supabase: SupabaseClient) => {
+  const messagesInsertSubscription =  supabase
+    .from("message")
+    .on("INSERT", (payload: SupabaseRealtimePayload<PublicMessage>) => {
+      console.log("Change received!", payload);
+    })
+    .subscribe();
+
+  return { messagesInsertSubscription };
+};
+
+export const useMessagesInsertSubscription = (
+  supabase: SupabaseClient,
+  immediate = true
+) => {
+  const [subscription, setSubscription] = useState<RealtimeSubscription | null>(
+    null
+  );
+  const [messagesError, setMessagesError] = useState<
+    PostgrestError | string | null
+  >(null);
+  const [status, setStatus] = useState<
+    "idle" | "pending" | "success" | "error"
+  >("idle");
+  const execute = useCallback(async () => {
+    setStatus("pending");
+    setMessagesError(null);
+    try {
+      const { messagesInsertSubscription } =
+        await getMessagesInsertSubscription(supabase);
+      setSubscription(messagesInsertSubscription);
+      setStatus("success");
+    } catch (error) {
+      setMessagesError("Error processing messages subscription");
+      setStatus("error");
+    }
+  }, [supabase]);
+  useEffect(() => {
+    if (immediate) {
+      execute();
+    }
+  }, [execute, immediate]);
+  return { subscription, messagesError, status, execute };
 };

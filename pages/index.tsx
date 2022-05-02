@@ -5,7 +5,7 @@ import type { UseSupaBase } from "utils";
 import { Auth, Chat } from "components";
 import styles from "../styles/Home.module.css";
 
-const Home: NextPage<UseSupaBase> = ({ session, supabase }) => {
+const Home: NextPage<UseSupaBase> = ({ session, supabase, currentUser }) => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,11 @@ const Home: NextPage<UseSupaBase> = ({ session, supabase }) => {
       </Head>
 
       <main className={styles.main}>
-        {loggedIn ? <Chat supabase={supabase} /> : <Auth supabase={supabase} />}
+        {loggedIn ? (
+          <Chat currentUser={currentUser} supabase={supabase} session={session} />
+        ) : (
+          <Auth supabase={supabase} />
+        )}
       </main>
     </div>
   );
