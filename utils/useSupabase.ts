@@ -31,10 +31,8 @@ const useSupabase = (): UseSupaBase => {
           .from<PublicUser>("user")
           .select("*")
           .eq("id", session.user.id);
-        console.log({ currentUser });
         if (currentUser?.length) {
           const foundUser = currentUser[0];
-          console.log({ foundUser });
           return foundUser;
         } else {
           return null;
@@ -43,7 +41,6 @@ const useSupabase = (): UseSupaBase => {
       return null;
     };
     getCurrentUser().then((currentUser) => {
-      console.log({ currentUser });
       setCurrentUser(currentUser);
     });
     return () => {
@@ -56,8 +53,6 @@ const useSupabase = (): UseSupaBase => {
       supabase
         .from(`user:id=eq.${currentUser.id}`)
         .on("UPDATE", ({ new: newUser }) => {
-          console.log("updating current user");
-          console.log({ newUser });
           setCurrentUser(newUser);
         })
         .subscribe();
